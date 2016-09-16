@@ -1,8 +1,23 @@
 #! /usr/bin/python
 # -*- coding: utf-8 -*-
 
+"""
+wxPython app for easy and fast thumbnail extraction from your images
+with the help of PIL/Pillow.
+
+This application allows the user to multiload, view, rotate, crop and save a
+hight quality thumbnail of the selection in just a few clicks.
+
+It loads all image formats supported by PIL/Pillow and
+saves thumbnails in JPEG or PNG formats.
+
+@author: Benito López
+@license: GNU GPL v3
+"""
+
 import wx
 import os
+import logging
 import wx.lib.mixins.rubberband
 try:
     from PIL import Image
@@ -11,10 +26,27 @@ except ImportError:
         import Image
     except ImportError:
         Image = None
-        print 'Python Imaging Library (PIL or Pillow) is required'
-print wx.version()
+        logging.info(u'Python Imaging Library (PIL or Pillow) is required')
+logging.info(wx.version())
 
 class MainFrame(wx.Frame):
+    '''
+    Main frame contains an StaticBitmap inside a Panel to display image,
+    a ToolBar aligned to the right side of the frame and
+    an StatusBar to display info and current zoom.
+    
+    Image will be proportionaly streched if exceeds the panel size in
+    default PIL/Pillow quality, so this application is not intended to be a
+    high quality viewer.
+    
+    To create a thumbnail:
+    1 - Load an image file.
+    2 - Drag mouse on the image to draw an adjustable RubberBand if you want to
+    save a thumb from a portion of the image.
+    3 - Click on Save button, check the thumb preview,
+    set a pathname and size for the thumb and click OK.
+    A hight quality thumbnail will be created.
+    '''
     def __init__(self, *args, **kwargs):
         super(MainFrame, self).__init__(*args, **kwargs)
         
@@ -51,10 +83,10 @@ class MainFrame(wx.Frame):
         
         tb.SetToolBitmapSize(tsize)
         
-        tb.AddLabelTool(1, 'Abrir', open_bmp, shortHelp='Abrir')
-        tb.AddLabelTool(2, 'Siguiente', next_bmp, shortHelp='Siguiente')
-        tb.AddLabelTool(3, 'Rotar', rotate_bmp, shortHelp='Rotar')
-        tb.AddLabelTool(4, 'Guardar', save_bmp, shortHelp='Guardar')
+        tb.AddLabelTool(1, 'Open', open_bmp, shortHelp='Open')
+        tb.AddLabelTool(2, 'Next', next_bmp, shortHelp='Next')
+        tb.AddLabelTool(3, 'Rotate', rotate_bmp, shortHelp='Rotate')
+        tb.AddLabelTool(4, 'Save as', save_bmp, shortHelp='Save as')
         tb.Realize()
         
         tb2 = wx.ToolBar(self, style=wx.TB_VERTICAL
@@ -63,7 +95,7 @@ class MainFrame(wx.Frame):
                                     |wx.TB_FLAT
                                     )
         tb2.SetToolBitmapSize(tsize)
-        tb2.AddLabelTool(5, 'Salir', close_bmp, shortHelp='Salir')        
+        tb2.AddLabelTool(5, 'Quit', close_bmp, shortHelp='Quit')
         tb2.Realize()
         
         grid.AddMany([(tb, 0, wx.EXPAND), (tb2, 0)])
@@ -102,7 +134,7 @@ class MainFrame(wx.Frame):
         wx.CallAfter(self.FilesDialog)
         
     def pil_to_wximage(self, pil, alpha=True):
-        """ Method will convert PIL Image to wx.Image """
+        '''Convert PIL Image to wx.Image'''
         if alpha:
             wximage = apply( wx.EmptyImage, pil.size )
             try:
@@ -121,30 +153,34 @@ class MainFrame(wx.Frame):
             wximage.SetData(data)
         return wximage
     
-    def pil_thumb_S1(self, pil_img, (target_w, target_h)):
-        ''' Devuelve una copia de la imagen escalada en calidad normal,
-            manteniendo sus proporciones, usando la libreria PIL '''
+    def pil_thumb_S1(self, pil_img, target_w, target_h):
+        '''Proportionaly scale to target size a copy of the image
+        in default quality with PIL/Pillow'''
         temp = pil_img.copy()
         temp.thumbnail((target_w, target_h))
         return temp
     
-    def pil_thumb_S2(self, pil_img, (target_w, target_h)):
-        ''' Devuelve la imagen pil_img escalada en calidad ANTIALIAS
-            manteniendo sus proporciones, usando la libreria PIL '''
+    def pil_thumb_S2(self, pil_img, target_w, target_h):
+        '''Proportionaly scale image to target size in ANTIALIAS quality.
+        with PIL/Pillow'''
         pil_img.thumbnail((target_w, target_h, Image.ANTIALIAS))
         return pil_img
     
     def SetSaveProperties(self, save_path, target_size):
+        '''Update properties path and size to save the thumb'''
         self.save_path = save_path
         self.target_size = target_size
         
     def GetSaveProperties(self):
+        '''Return thumbnail save properties path and size'''
         return self.save_path, self.target_size
         
     def OnFilesDialog(self, evt):
+        '''Call method FilesDialog'''
         self.FilesDialog()
         
     def FilesDialog(self):
+        '''Open standard multiselect FileDialog and load first file'''
         wildcard = "All files (*.*)|*.*"
         dialog = wx.FileDialog(None, "Choose a file",
                                os.path.dirname(self.img_path),
@@ -160,19 +196,20 @@ class MainFrame(wx.Frame):
         self.OnLoadImage(self.index)
             
     def OnLoadImage(self, index):
+        '''Load image on StaticBitmap and call Layout to force an EVT_SIZE'''
         self.ClearAll()
         self.img_path = self.files[index]
         try:
             file = open(self.img_path, 'rb')
         except IOError:
-            msg = u'No se puede acceder el archivo\n{}'.format(self.img_path)
-            wx.MessageDialog(self, msg, 'Error de lectura',
+            msg = u'Cannot open the file\n{}'.format(self.img_path)
+            wx.MessageDialog(self, msg, 'Read error',
                              wx.OK | wx.ICON_ERROR).ShowModal()
             wx_img = wx.NullBitmap
         except MemoryError:
-            msg = u'''El sistema se ha quedado sin memoria al intentar abrir\n{}
+            msg = u'''No enought memory to open the file\n{}
                    '''.format(self.img_path)
-            wx.MessageDialog(self, msg, 'Error de memoria',
+            wx.MessageDialog(self, msg, 'Memory error',
                              wx.OK | wx.ICON_ERROR).ShowModal()
             wx_img = wx.NullBitmap
             
@@ -181,7 +218,7 @@ class MainFrame(wx.Frame):
                 self.pil_img = Image.open((file))
                 wx_img = wx.BitmapFromImage(self.pil_to_wximage(self.pil_img))
             except:
-                msg = u'Formato de archivo incorrecto\n{}'.format(self.img_path)
+                msg = u'Wrong image format\n{}'.format(self.img_path)
                 wx.MessageDialog(self, msg, 'Error',
                                 wx.OK | wx.ICON_ERROR).ShowModal()
                 wx_img = wx.NullBitmap
@@ -193,67 +230,64 @@ class MainFrame(wx.Frame):
         self.statusBar.SetStatusText(text, 0)
             
     def OnNextFile(self, evt):
+        '''Get next file from the list and call method OnLoadImage'''
         if self.index + 1 in self.files.keys():
             self.index += 1
             
         else:
-            wx.MessageDialog(self, u'Fin de la lista de archivos', 'Info',
+            wx.MessageDialog(self, u'End of file list, restarting', 'Info',
                                    wx.OK | wx.ICON_INFORMATION).ShowModal()
             self.index = 0
             
         self.OnLoadImage(self.index)
         
     def OnSaveThumbnail(self, evt):
-        ''' Crea un thumbnail de la seleccion usando la libreria PIL en 2 pasos,
-            primero: con el doble de tamaño del target en calidad normal,
-            segundo: tamaño del target en calidad ANTIALIAS
-            Con esta tecnica se obtiene un thumbnail de mayor calidad,
-            sin mermar demasiado la velocidad, en imagenes muy grandes'''
-        dlg = SaveDialog(self, -1, 'Guardar miniatura como...', size=(400,400))
+        '''Open SaveDialog, get a high quality thumbnail from the image and
+        save to disk '''
+        dlg = SaveDialog(self, -1, 'Save thumbnail as...', size=(400,400))
         if dlg.ShowModal() == wx.ID_CANCEL:
             return
             
-        print 'Guardar como:', self.save_path
-        print 'Tamaño del thumb:', self.target_size
+        logging.info(u'Save as: {}'.format(self.save_path))
+        logging.info(u'Thumb size: {}'.format(self.target_size))
         if not self.save_path:
             return
         elif os.path.exists(self.save_path):
-            text = u'''El archivo ya existe:\n\n{}\n
-¿Desea sobrescribirlo?.'''.format(self.save_path)
-            msg = wx.MessageDialog(self, text, 'Sobrescribir',
+            text = u'''File exists:\n\n{}\n
+¿Overwrite?.'''.format(self.save_path)
+            msg = wx.MessageDialog(self, text, 'Overwrite',
                                    wx.YES_NO|wx.CANCEL |
                                    wx.ICON_QUESTION).ShowModal()
             if msg == wx.ID_NO or msg == wx.ID_CANCEL:
-                self.statusBar.SetStatusText(u'Cancelado, no se ha guardado', 0)
+                self.statusBar.SetStatusText(u'Canceled, not saved', 0)
                 return
             
         cropped_img = self.GetCroppedImg()
         img_w, img_h = cropped_img.size
         target_w, target_h = self.target_size
         if img_w > target_w * 2 or img_h > target_h * 2:
-            #Step 1: Thumb to double target size with low quality
-            cropped_img = self.pil_thumb_S1(cropped_img, (target_w, target_h))
-        #Step 2: Thumb to target size with hight quality
-        thumb = self.pil_thumb_S2(cropped_img, (target_w, target_h))
+            # Step 1: Thumb to double the target size with default quality
+            cropped_img = self.pil_thumb_S1(cropped_img, target_w, target_h)
+        # Step 2: Thumb to target size with best quality
+        thumb = self.pil_thumb_S2(cropped_img, target_w, target_h)
         # Save file
-        self.statusBar.SetStatusText('Guardando...', 0)
+        self.statusBar.SetStatusText('Saving...', 0)
         try:
             thumb.save(self.save_path)
         except IOError:
-            print "cannot create thumbnail for", self.save_path
-            msg = u'''No se puede guardar el archivo:\n\n{}\n
-Compruebe la ruta y el nombre de archivo.'''.format(self.save_path)
-            wx.MessageDialog(self, msg, 'Error de escritura',
+            logging.error(u'Cannot create thumbnail: {}'.format(self.save_path))
+            msg = u'''Cannot save file:\n\n{}\n
+Check path and filename.'''.format(self.save_path)
+            wx.MessageDialog(self, msg, 'Write error',
                              wx.OK | wx.ICON_ERROR).ShowModal()
-            self.statusBar.SetStatusText(u'Error, no se ha guardado', 0)
+            self.statusBar.SetStatusText(u'Error, not saved', 0)
         else:
-            text = u'Guardado en {}'.format(self.save_path)
+            text = u'Saved: {}'.format(self.save_path)
             self.statusBar.SetStatusText(text, 0)
         
     def GetCroppedImg(self):
-        ''' Devuelve la porcion de imagen original seleccionada,
-            o toda si no hay seleccion.
-            Y elimina los bordes que excedan las medidas del StaticBitmap '''
+        '''Get rubberband coords removing borders exceeding the StaticBitmap.
+        Return cropped image or full image if no rubberband is drawn'''
         try:
             left, top, right, bottom = self.rubberband.getCurrentExtent()
         except TypeError:
@@ -279,33 +313,36 @@ Compruebe la ruta y el nombre de archivo.'''.format(self.save_path)
         return cropped_img
         
     def ClearAll(self):
-        # Resets the rubber band and zoom scale
+        '''Reset the rubberband extent and zoom scale'''
         self.zoom = 1
         self.ClearRB()
         
     def ClearRB(self):
-        # Resets the rubber band
+        '''Reset the rubberband extent'''
         self.rubberband.reset()
         
     def OnEvtSize(self, evt):
+        '''Call method ReSize after EVT_SIZE'''
         wx.CallAfter(self.ReSize)
         evt.Skip()
         
     def ReSize(self):
+        '''Compare panel size with original image size.
+        Resize image to fit the panel or restore original image size'''
         if not hasattr(self.pil_img, 'size'):
             return
         target_w, target_h = self.panel.GetSize()
         img_w, img_h = self.pil_img.size
         if target_w < img_w or target_h < img_h:
-            #La imagen no cabe, hay que redimensionarla
+            # Image exceeds panel size
             self.zoom = min(float(target_w) / img_w, float(target_h) / img_h)
-            thumb = self.pil_thumb_S1(self.pil_img, (target_w, target_h))
+            thumb = self.pil_thumb_S1(self.pil_img, target_w, target_h)
             wx_img = self.pil_to_wximage(thumb)
             self.staticbmp.SetBitmap(wx.BitmapFromImage(wx_img))
             self.ClearRB()
         else:
             if self.zoom < 1:
-                #Hay q restaurar el tamaño original de la imagen
+                # Restore original image size
                 wx_img = self.pil_to_wximage(self.pil_img)
                 self.staticbmp.SetBitmap(wx.BitmapFromImage(wx_img))
                 self.ClearAll()
@@ -315,12 +352,13 @@ Compruebe la ruta y el nombre de archivo.'''.format(self.save_path)
                                                     1)
         
     def GetPreviewImg(self, size=(200, 200)):
-        ''' Devuelve un preview de la imagen cargada con formato wxpython
-            de tamaño (200, 200) y calidad normal '''
-        preview = self.pil_thumb_S1(self.GetCroppedImg(), size)
+        '''Return a default quality, resized preview of the cropped image
+           in wxpython image format'''
+        preview = self.pil_thumb_S1(self.GetCroppedImg(), size[0], size[1])
         return self.pil_to_wximage(preview)
             
     def OnRotateRight(self, evt):
+        '''Rotate loaded image 90º to the right'''
         self.ClearRB()
         self.pil_img = self.pil_img.rotate(-90)
         wx_img = self.pil_to_wximage(self.pil_img)
@@ -328,14 +366,12 @@ Compruebe la ruta y el nombre de archivo.'''.format(self.save_path)
         self.Layout()
         
     def OnClose(self, evt):
+        '''Quit the application'''
         self.Destroy()
         
         
 class SaveDialog(wx.Dialog):
-    ''' Custom dialog para la introduccion de la ruta destino del thumbnail
-        y su tamaño.
-        Obtiene ruta y tamaño inicial del thumb.
-        Devuelve ruta y tamaño elegido por el usuario'''
+    '''Custom dialog for thumbnail pathname and size introduction'''
     def __init__(self, parent, *args, **kwargs):
         super(SaveDialog, self).__init__(parent, *args, **kwargs)
         
@@ -347,7 +383,7 @@ class SaveDialog(wx.Dialog):
         # Path and filename
         sizer1 = wx.BoxSizer(wx.VERTICAL)
         label = wx.StaticText(self, -1,
-                              'Nombre de archivo:')
+                              'File name:')
         sizer1.Add(label, 0, wx.EXPAND|wx.ALL, 5)
         h_sizer1 = wx.BoxSizer(wx.HORIZONTAL)
         self.text_path = wx.TextCtrl(self, -1, self.save_path,
@@ -367,7 +403,7 @@ class SaveDialog(wx.Dialog):
         # Thumbnail target size
         sizer2 = wx.BoxSizer(wx.VERTICAL)
         label = wx.StaticText(self, -1,
-                              'Ancho y Alto de la miniatura (en pixeles)',
+                              'Thumbnail width and height (in pixels)',
                               style=wx.TE_CENTER)
         sizer2.Add(label, 0, wx.ALIGN_CENTER|wx.ALL, 5)
         h_sizer2 = wx.BoxSizer(wx.HORIZONTAL)
@@ -406,12 +442,10 @@ class SaveDialog(wx.Dialog):
         self.text_path.SetFocus()
         
     def on_keypress(self, evt):
-        # Evita la introduccion de caracteres no numericos
+        '''Avoid non numerical characters'''
         k_code = evt.GetKeyCode()
         t_object = evt.GetEventObject()
         t_name = t_object.GetName()
-        #print t_name
-        #print k_code
         valid_k_codes = (9, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 8, 13,
                          127, 314, 315, 316, 317, 324, 325, 326, 327, 328,
                          329, 330, 331, 332, 333, 391)
@@ -420,7 +454,7 @@ class SaveDialog(wx.Dialog):
             evt.Skip()
         
     def on_text_enter(self, evt):
-        # Pasa el foco al siguiente TextCtrl cuando se presiona INTRO
+        '''Set focus on the next control when INTRO is pressed'''
         t_object = evt.GetEventObject()
         t_name = t_object.GetName()
         objt_names = ('path', 'width', 'height', 'OK')
@@ -431,9 +465,8 @@ class SaveDialog(wx.Dialog):
                 self.OnOk(evt)
             
     def on_but_click(self, evt):
-        ''' Abre el dialogo estandar wx.FileDialog y
-            establece la ruta seleccionada en el TextCtrl '''
-        #wildcard = "PNG files (*.png)|*.png"
+        '''Start an standard wx.FileDialog
+        Get pathname from user, validate extension and set property'''
         wildcard = "JPEG files (*.jpg)|*.jpg|PNG files (*.png)|*.png"
         dialog = wx.FileDialog(None, "Save thumbnail",
                                os.path.dirname(self.save_path),
@@ -453,7 +486,8 @@ class SaveDialog(wx.Dialog):
         self.text_path.SetInsertionPointEnd()
         
     def OnOk(self, evt):
-        # Valida y envia los parametros elegidos al frame y finaliza el dialogo
+        '''Validate save values, set save properties to the frame with
+        user values and end dialog'''
         if not self.text_path.GetValue():
             self.text_path.SetFocus()
             return
@@ -477,7 +511,7 @@ class SaveDialog(wx.Dialog):
         self.EndModal(wx.ID_OK)
             
     def OnClose(self, evt):
-        # Finaliza el dialogo Cancelado
+        '''Cancel dialog'''
         self.EndModal(wx.ID_CANCEL)
         
            
