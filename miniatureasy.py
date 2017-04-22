@@ -2,6 +2,8 @@
 # -*- coding: utf-8 -*-
 
 """
+MiniaturEasy
+
 wxPython app for easy and fast thumbnail extraction from your images
 with the help of PIL/Pillow.
 
@@ -390,7 +392,9 @@ GIF files (*.gif)|*.gif"
         target_w, target_h = self.target_size
         if img_w > target_w * 2 or img_h > target_h * 2:
             # Step 1: Thumb to double the target size with default quality
-            cropped_img = self.pil_thumb_loq(cropped_img, target_w, target_h)
+            cropped_img = self.pil_thumb_loq(cropped_img,
+                                             target_w * 2,
+                                             target_h * 2)
         # Step 2: Thumb to target size with best quality
         thumb = self.pil_thumb_hiq(cropped_img, target_w, target_h)
         # Save file
@@ -668,6 +672,6 @@ class SaveDialog(wx.Dialog):
 if __name__ == '__main__':
     app = wx.App(redirect=False)
     app.locale = wx.Locale(wx.LANGUAGE_DEFAULT)
-    frm = MainFrame(None, title="Easy Thumbnailer")
+    frm = MainFrame(None, title="MiniaturEasy - Thumbnail creator")
     frm.Show()
     app.MainLoop() 

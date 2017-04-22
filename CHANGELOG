@@ -1,7 +1,15 @@
-miniatureasy changelog:
+MiniaturEasy changelog:
+
+v.0.1.1
+- Minor bugfixes and typos.
+
 v.0.1
 - Renamed project as miniatureasy.
 - Refactored code to be multiplatform compatible.
+- New icons from the Oxygen KDE icons theme.
+- Python 3 compatible.
+- Improvements to avoid flicker.
+- Many minor improvements and bugfixes.
 
 Easy-Thumbnailer changelog:
 v.0.0.2

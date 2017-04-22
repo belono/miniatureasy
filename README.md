@@ -1,10 +1,10 @@
-# miniatureasy
+# MiniaturEasy
 Extract miniatures from your images in a few clicks.
 
 Description
 -----------
 
-Miniatureasy is a multiplatform GUI app for fast and easy miniature extraction from image files,
+MiniaturEasy is a multiplatform GUI app for fast and easy miniature extraction from image files,
 allowing the user to multiload, view, rotate, crop and save a high quality thumbnail, in just a few clicks.
 
 Can load all image formats supported by PIL/Pillow and save thumbnails in JPEG or PNG formats.
@@ -48,7 +48,7 @@ https://github.com/KDE/oxygen-icons
 Testing
 -------
 
-Platforms:
+Succesfully tested under this platforms:
     
     - Linux
       Python v.2.7, v.3.5
