@@ -1,0 +1,17 @@
+miniatureasy changelog:
+v.0.1
+- Renamed project as miniatureasy.
+- Refactored code to be multiplatform compatible.
+
+Easy-Thumbnailer changelog:
+v.0.0.2
+- BUGFIX: Capture event resize on windows.
+
+v.0.0.1
+- IMPROVEMENT: Añadir un icono.
+- IMPROVEMENT: Message on status bar if python-pil/pillow not installed.
+- IMPROVEMENT: Disable/enable tool buttons after image load.
+- IMPROVEMENT: Added wildcards for jpeg and png to files_dialog.
+- BUGFIX: Incorrect size of the save thumbnail dialog content
+          under some wxPython versions.
+- BUGFIX: Capture exception SystemError on save.
