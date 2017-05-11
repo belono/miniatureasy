@@ -1,6 +1,10 @@
 # MiniaturEasy
 Extract miniatures from your images in a few clicks.
 
+.. image:: https://www.quantifiedcode.com/api/v1/project/a55e32706c144305b03b966d3594bd29/badge.svg
+  :target: https://www.quantifiedcode.com/app/project/a55e32706c144305b03b966d3594bd29
+  :alt: Code issues
+
 Description
 -----------
 

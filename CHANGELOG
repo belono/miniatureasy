@@ -1,5 +1,10 @@
 MiniaturEasy changelog:
 
+v.0.1.2
+- Improved code: PEP8 by flake8 and pylint optimizations.
+- QuantifiedCode integration.
+- Added requirements.txt file.
+
 v.0.1.1
 - Minor bugfixes and typos.
 

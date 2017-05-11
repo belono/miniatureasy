@@ -1,0 +1,4 @@
+### MiniaturEasy requiered python libraries ###
+
+wxPython >=2.8
+Pillow
