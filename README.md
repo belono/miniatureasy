@@ -2,8 +2,8 @@
 Extract miniatures from your images in a few clicks.
 
 .. image:: https://www.quantifiedcode.com/api/v1/project/a55e32706c144305b03b966d3594bd29/badge.svg
-  :target: https://www.quantifiedcode.com/app/project/a55e32706c144305b03b966d3594bd29
-  :alt: Code issues
+    :target: https://www.quantifiedcode.com/app/project/a55e32706c144305b03b966d3594bd29
+    :alt: Code issues
 
 Description
 -----------
@@ -46,8 +46,8 @@ Oxygen KDE icons
 ------------
 
 This project makes use of a selection of icons from the Oxygen KDE icons theme.
-https://www.kde.org/
-https://github.com/KDE/oxygen-icons
+    https://www.kde.org/
+    https://github.com/KDE/oxygen-icons
 
 Testing
 -------
