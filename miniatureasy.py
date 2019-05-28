@@ -39,10 +39,10 @@ except AttributeError:
 
 
 class MainFrame(wx.Frame):
-    '''
-    Main frame contains a Panel to display image,
-    a ToolBar aligned to the right side of the frame and
-    an StatusBar to display info and current zoom.
+    """ Window main frame.
+
+    Contains a Panel to display image, a ToolBar aligned to the right side of
+    the frame and a StatusBar to display info and current zoom.
 
     Image will be proportionaly streched if exceeds the panel size in
     default PIL/Pillow quality, so this application is not intended to be a
@@ -55,7 +55,7 @@ class MainFrame(wx.Frame):
     3 - Click on Save button, check out the miniature preview,
         set a pathname and size for the thumb and then click OK.
         A hight quality miniature will be created.
-    '''
+    """
     def __init__(self, *args, **kwargs):
         super(MainFrame, self).__init__(*args, **kwargs)
 
@@ -199,12 +199,12 @@ class MainFrame(wx.Frame):
 
     @staticmethod
     def enable_tbbuttons(boolean):
-        '''Change toolbar buttons status'''
+        """ Change toolbar buttons status."""
         tb1 = wx.FindWindowByName('tb1')
         [tb1.EnableTool(tool_id, boolean) for tool_id in [2, 3, 4]]
 
     def pil_to_wximage(self, pil):
-        '''Convert PIL Image to wx.Image checking if it has alpha channel'''
+        """ Convert PIL Image to wx.Image checking if it has alpha channel."""
         if self.has_alpha:
             wximage = self._get_wximage_alpha(pil)
         else:
@@ -214,7 +214,8 @@ class MainFrame(wx.Frame):
 
     @staticmethod
     def _get_wximage_alpha(pil):
-        'Private method to convert PIL image with alpha channel to wx.Image'
+        """ Private method to convert PIL image with alpha channel to wx.Image.
+        """
         data = pil.convert("RGB")
         alpha = pil.convert("RGBA")
         try:
@@ -241,7 +242,9 @@ class MainFrame(wx.Frame):
 
     @staticmethod
     def _get_wximage_noalpha(pil):
-        'Private method to convert PIL image with no alpha channel to wx.Image'
+        """ Private method to convert PIL image with no alpha channel
+        to wx.Image.
+        """
         data = pil.convert('RGB')
         try:
             # python3
@@ -262,30 +265,30 @@ class MainFrame(wx.Frame):
 
     @staticmethod
     def pil_thumb_loq(pil_img, target_w, target_h):
-        '''Proportionaly scale to target size a COPY of the image
-        in DEFAULT quality with PIL/Pillow'''
+        """ Proportionaly scale to target size a COPY of the image
+        in DEFAULT quality with PIL/Pillow."""
         temp = pil_img.copy()
         temp.thumbnail((target_w, target_h))
         return temp
 
     @staticmethod
     def pil_thumb_hiq(pil_img, target_w, target_h):
-        '''Proportionaly scale image to target size in ANTIALIAS quality.
-        with PIL/Pillow'''
+        """ Proportionaly scale image to target size in ANTIALIAS quality.
+        with PIL/Pillow."""
         pil_img.thumbnail((target_w, target_h, Image.ANTIALIAS))
         return pil_img
 
     def set_save_properties(self, save_path, target_size):
-        '''Update properties path and size to save the thumb'''
+        """ Update properties path and size to save the thumb."""
         self.save_path = save_path
         self.target_size = target_size
 
     def get_save_properties(self):
-        '''Return thumbnail save properties path and size'''
+        """ Return thumbnail save properties path and size."""
         return self.save_path, self.target_size
 
     def on_files_dialog(self, evt=None):
-        '''Open standard multiselect FileDialog and load first file'''
+        """ Open standard multiselect FileDialog and load first file."""
         wildcard = "All files (*.*)|*.*|\
 JPEG files (*.jpg)|*.jpg|\
 PNG files (*.png)|*.png|\
@@ -303,7 +306,7 @@ GIF files (*.gif)|*.gif"
         self.on_load_image(self.index)
 
     def on_load_image(self, index):
-        '''Load image on memory and call update_drawing'''
+        """ Load image on memory and call update_drawing."""
         self.clear_all()
         self.img_path = self.files[index]
         try:
@@ -338,7 +341,7 @@ GIF files (*.gif)|*.gif"
         self.statusbar.SetStatusText(text, 0)
 
     def on_next_file(self, evt):
-        '''Get next file from the list and call method on_load_image'''
+        """ Get next file from the list and call method on_load_image."""
         if self.index + 1 in self.files.keys():
             self.index += 1
 
@@ -351,8 +354,8 @@ GIF files (*.gif)|*.gif"
         self.on_load_image(self.index)
 
     def on_save_thumbnail(self, evt):
-        '''Open SaveDialog, get a high quality thumbnail from the image and
-        save to disk '''
+        """ Open SaveDialog, get a high quality thumbnail from the image and
+        save to disk."""
         dlg = SaveDialog(self, -1, 'Save thumbnail as...',
                          size=(400, 400))
         if dlg.ShowModal() == wx.ID_CANCEL:
@@ -405,8 +408,8 @@ Check target size: {}'''.format(self.save_path, self.target_size)
             self.statusbar.SetStatusText(text, 0)
 
     def get_cropped_img(self):
-        '''Get rubberband coords removing borders exceeding the boundingbox.
-        Return cropped image or full image if no rubberband is drawn'''
+        """ Get rubberband coords removing borders exceeding the boundingbox.
+        Return cropped image or full image if no rubberband is drawn."""
         try:
             left, top, right, bottom = self.rubberband.getCurrentExtent()
         except TypeError:
@@ -423,8 +426,8 @@ Check target size: {}'''.format(self.save_path, self.target_size)
             if bottom > self.boundingbox[3]:
                 bottom = self.boundingbox[3]
 
-        '''Convert rubberband coords to original img coords correcting the
-           center align and the zoom'''
+        # Convert rubberband coords to original img coords correcting the
+        # center align and the zoom.
         left, top, right, bottom = (left - self.boundingbox[0],
                                     top - self.boundingbox[1],
                                     right - self.boundingbox[0],
@@ -436,31 +439,32 @@ Check target size: {}'''.format(self.save_path, self.target_size)
         return cropped_img
 
     def clear_all(self):
-        '''Reset the rubberband extent and zoom scale'''
+        """ Reset the rubberband extent and zoom scale."""
         self.zoom = 1
         self.clear_rb()
 
     def clear_rb(self):
-        '''Reset the rubberband extent if is drawn'''
+        """ Reset the rubberband extent if is drawn."""
         if self.rubberband.getCurrentExtent():
             self.rubberband.reset()
 
     def on_evt_size(self, evt):
-        'Reset rubberband and call method update_drawing after panel EVT_SIZE'
+        """ Reset rubberband and call method update_drawing after
+        panel EVT_SIZE."""
         self.clear_rb()
         self.update_drawing()
         evt.Skip()
 
     def on_evt_paint(self, evt):
-        'Reduces flicker on windows platform, no efect on gtk'
+        """ Reduces flicker on Windows platform, no efect on gtk."""
         self.update_drawing(dc=wx.AutoBufferedPaintDC(self.panel))
 
     def get_resized_center_bmp(self):
-        '''Compare panel size with original image size.
+        """ Compare panel size with original image size.
         Scale image to fit the panel or restore original image size and
         calculate the applied zoom with a maximum of 100%.
         Return the resulting bitmap object and position needed to center the
-        bitmat on the panel'''
+        bitmat on the panel."""
         if not hasattr(self.pil_img, 'size'):
             return
         target_w, target_h = self.panel.GetSize()
@@ -479,7 +483,7 @@ Check target size: {}'''.format(self.save_path, self.target_size)
         return (wx_img.ConvertToBitmap(), position)
 
     def update_drawing(self, dc=None):
-        '''Draw the bitmap on the panel and update the bounding box coords'''
+        """ Draw the bitmap on the panel and update the bounding box coords."""
         if not dc:
             dc = wx.ClientDC(self.panel)
         dc.Clear()
@@ -489,25 +493,25 @@ Check target size: {}'''.format(self.save_path, self.target_size)
         self.boundingbox = dc.GetBoundingBox()
 
     def get_preview_img(self, size=(200, 200)):
-        '''Return a default quality, resized preview of the cropped image
-           in wxpython image format'''
+        """ Return a default quality, resized preview of the cropped image
+        in wxpython image format."""
         preview = self.pil_thumb_loq(self.get_cropped_img(), size[0], size[1])
         return self.pil_to_wximage(preview)
 
     def on_rotate_right(self, evt):
-        '''Rotate loaded image 90º to the right then call update_drawing'''
+        """ Rotate loaded image 90º to the right then call update_drawing."""
         self.clear_rb()
         self.pil_img = self.pil_img.rotate(-90, expand=True)
         self.update_drawing()
 
     @staticmethod
     def on_close(evt):
-        '''Quit the application'''
+        """ Quit the application."""
         exit()
 
 
 class SaveDialog(wx.Dialog):
-    '''Custom dialog for thumbnail pathname and size introduction'''
+    """ Custom dialog for thumbnail pathname and size introduction."""
     def __init__(self, parent, *args, **kwargs):
         super(SaveDialog, self).__init__(parent, *args, **kwargs)
 
@@ -580,7 +584,7 @@ class SaveDialog(wx.Dialog):
 
     @staticmethod
     def on_keypress(evt):
-        '''Avoid non numerical characters'''
+        """ Avoid non numerical characters."""
         k_code = evt.GetKeyCode()
         t_object = evt.GetEventObject()
         t_name = t_object.GetName()
@@ -592,7 +596,7 @@ class SaveDialog(wx.Dialog):
             evt.Skip()
 
     def on_text_enter(self, evt):
-        '''Set focus on the next control when INTRO is pressed'''
+        """ Set focus on the next control when INTRO is pressed."""
         t_object = evt.GetEventObject()
         t_name = t_object.GetName()
         objt_names = ('path', 'width', 'height', 'OK')
@@ -603,8 +607,9 @@ class SaveDialog(wx.Dialog):
                 self.on_ok(evt)
 
     def on_but_click(self, evt):
-        '''Start an standard wx.FileDialog
-        Get pathname from user, validate extension and set property'''
+        """ Start an standard wx.FileDialog
+
+        Get pathname from user, validate extension and set property."""
         wildcard = "JPEG files (*.jpg)|*.jpg|PNG files (*.png)|*.png"
         dialog = wx.FileDialog(None, "Save thumbnail",
                                os.path.dirname(self.save_path),
@@ -622,8 +627,8 @@ class SaveDialog(wx.Dialog):
         self.text_path.SetInsertionPointEnd()
 
     def on_ok(self, evt):
-        '''Validate save values, set save properties to the frame with
-        user values and end dialog'''
+        """ Validate save values, set save properties to the frame with
+        user values and end dialog."""
         if not self.text_path.GetValue():
             self.text_path.SetFocus()
             return
@@ -646,7 +651,7 @@ class SaveDialog(wx.Dialog):
         self.EndModal(wx.ID_OK)
 
     def on_close(self, evt):
-        '''Cancel dialog'''
+        """ Cancel dialog."""
         self.EndModal(wx.ID_CANCEL)
 
 
