@@ -1,1 +1,3 @@
 save_dlg.py
+*.pyc
+.vscode/
