@@ -194,6 +194,7 @@ class MainFrame(wx.Frame):
             txt = u'Python Imaging Library (PIL or Pillow) is required'
             self.statusbar.SetStatusText(u'ERROR: {}'.format(txt), 0)
             logging.error(txt)
+
         self.enable_tbbuttons(False)
         wx.CallAfter(self.on_files_dialog)
 
@@ -306,7 +307,7 @@ GIF files (*.gif)|*.gif"
         self.on_load_image(self.index)
 
     def on_load_image(self, index):
-        """ Load image on memory and call update_drawing."""
+        """ Load image in memory and call update_drawing."""
         self.clear_all()
         self.img_path = self.files[index]
         try:
@@ -357,7 +358,7 @@ GIF files (*.gif)|*.gif"
         """ Open SaveDialog, get a high quality thumbnail from the image and
         save to disk."""
         dlg = SaveDialog(self, -1, 'Save thumbnail as...',
-                         size=(400, 400))
+                         size=(400, 450))
         if dlg.ShowModal() == wx.ID_CANCEL:
             return
 
