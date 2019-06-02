@@ -7,7 +7,7 @@ Description
 MiniaturEasy is a multiplatform GUI app for fast and easy miniature extraction from image files,
 allowing the user to multiload, view, rotate, crop and save a high quality thumbnail, in just a few clicks.
 
-Can load all image formats supported by PIL/Pillow and save thumbnails in JPEG or PNG formats.
+Can load all image formats supported by PIL/Pillow and save thumbnails in JPEG, PNG or ICO formats.
 
 Dependencies
 ------------
@@ -42,7 +42,8 @@ Oxygen KDE icons
 ------------
 
 This project makes use of a selection of icons from the Oxygen KDE icons theme.
-    https://www.kde.org/
+
+    https://www.kde.org
     https://github.com/KDE/oxygen-icons
 
 Testing

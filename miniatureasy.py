@@ -611,7 +611,9 @@ class SaveDialog(wx.Dialog):
         """ Start an standard wx.FileDialog
 
         Get pathname from user, validate extension and set property."""
-        wildcard = "JPEG files (*.jpg)|*.jpg|PNG files (*.png)|*.png"
+        wildcard = "JPEG files (*.jpg)|*.jpg|" \
+            "PNG files (*.png)|*.png|" \
+            "ICO files (*.ico)|*.ico"
         dialog = wx.FileDialog(None, "Save thumbnail",
                                os.path.dirname(self.save_path),
                                "", wildcard,
