@@ -415,24 +415,27 @@ Check target size: {}'''.format(self.save_path, self.target_size)
             left, top, right, bottom = self.rubberband.getCurrentExtent()
         except TypeError:
             # None extent = Full size selection
-            left, top, right, bottom = self.boundingbox
+            left, top, right, bottom = (self.boundingbox.left,
+                                        self.boundingbox.top,
+                                        self.boundingbox.right,
+                                        self.boundingbox.bottom)
         else:
             # Prevents the rubberband to exceed the image
-            if left < self.boundingbox[0]:
-                left = self.boundingbox[0]
-            if top < self.boundingbox[1]:
-                top = self.boundingbox[1]
-            if right > self.boundingbox[2]:
-                right = self.boundingbox[2]
-            if bottom > self.boundingbox[3]:
-                bottom = self.boundingbox[3]
+            if left < self.boundingbox.left:
+                left = self.boundingbox.left
+            if top < self.boundingbox.top:
+                top = self.boundingbox.top
+            if right > self.boundingbox.right:
+                right = self.boundingbox.right
+            if bottom > self.boundingbox.bottom:
+                bottom = self.boundingbox.bottom
 
         # Convert rubberband coords to original img coords correcting the
         # center align and the zoom.
-        left, top, right, bottom = (left - self.boundingbox[0],
-                                    top - self.boundingbox[1],
-                                    right - self.boundingbox[0],
-                                    bottom - self.boundingbox[1])
+        left, top, right, bottom = (left - self.boundingbox.left,
+                                    top - self.boundingbox.top,
+                                    right - self.boundingbox.left,
+                                    bottom - self.boundingbox.top)
         cropped_img = self.pil_img.crop((int(left / self.zoom),
                                          int(top / self.zoom),
                                          int(right / self.zoom),
@@ -461,37 +464,63 @@ Check target size: {}'''.format(self.save_path, self.target_size)
         self.update_drawing(dc=wx.AutoBufferedPaintDC(self.panel))
 
     def get_resized_center_bmp(self):
-        """ Compare panel size with original image size.
-        Scale image to fit the panel or restore original image size and
-        calculate the applied zoom with a maximum of 100%.
-        Return the resulting bitmap object and position needed to center the
-        bitmat on the panel."""
+        """ Return the bitmap object (downscaled if bitmap doesn't fit the
+        panel) and the point where to center the bitmat on the panel.
+
+        Update the bitmap bounding box and zoom properties."""
         if not hasattr(self.pil_img, 'size'):
             return
-        target_w, target_h = self.panel.GetSize()
-        img_w, img_h = self.pil_img.size
-        thumb = self.pil_thumb_loq(self.pil_img, target_w, target_h)
-        thumb_w, thumb_h = thumb.size
+        panel_size = self.panel.GetSize()
+        source_size = self.pil_img.size
+
+        thumb = self.pil_thumb_loq(self.pil_img, *panel_size)
+
         wx_img = self.pil_to_wximage(thumb)
-        position = ((target_w - thumb_w) / 2,
-                    (target_h - thumb_h) / 2)
-        self.zoom = min(float(target_w) / img_w,
-                        float(target_h) / img_h,
+
+        position = self.get_center(panel_size, thumb.size)
+
+        self.update_boundingbox(position, thumb.size)
+        self.update_zoom_rate(panel_size, source_size)
+
+        return (wx_img.ConvertToBitmap(), position.Get())
+
+    @staticmethod
+    def get_center(panel_size, thumb_size):
+        """ Return the wx.Point where the bitmap has to be drawn to be centered.
+        """
+        panel_w, panel_h = panel_size
+        thumb_w, thumb_h = thumb_size
+
+        position = wx.Point((panel_w - thumb_w) / 2,
+                            (panel_h - thumb_h) / 2)
+        return position
+
+    def update_boundingbox(self, position, size):
+        """ Update the drawn bitmap bounding box coords.
+        """
+        self.boundingbox = wx.Rect(position[0], position[1], size[0], size[1])
+
+    def update_zoom_rate(self, panel_size, source_size):
+        """ Update zoom property and statusbar info.
+        """
+        panel_w, panel_h = panel_size
+        source_w, source_h = source_size
+
+        self.zoom = min(float(panel_w) / source_w,
+                        float(panel_h) / source_h,
                         1)  # 100% Max zoom allowed
 
         self.statusbar.SetStatusText(u'Zoom: {}%'.format(int(self.zoom * 100)),
                                      1)
-        return (wx_img.ConvertToBitmap(), position)
 
     def update_drawing(self, dc=None):
-        """ Draw the bitmap on the panel and update the bounding box coords."""
+        """ Draw the bitmap on the panel."""
         if not dc:
             dc = wx.ClientDC(self.panel)
         dc.Clear()
         bmp, position = self.get_resized_center_bmp()
         dc.DrawBitmap(bmp,
                       *position)
-        self.boundingbox = dc.GetBoundingBox()
 
     def get_preview_img(self, size=(200, 200)):
         """ Return a default quality, resized preview of the cropped image

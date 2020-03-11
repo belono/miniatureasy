@@ -43,7 +43,7 @@ Oxygen KDE icons
 
 This project makes use of a selection of icons from the Oxygen KDE icons theme.
 
-    https://www.kde.org
+    https://www.kde.org/
     https://github.com/KDE/oxygen-icons
 
 Testing
