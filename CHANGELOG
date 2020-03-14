@@ -1,9 +1,14 @@
 MiniaturEasy changelog:
 
+v.0.1.4
+- Fixed incorrect bounding box values in some platforms:
+- Now boundingbox is a wx.Rect and values are obtained from its properties.
+- Improved code: get_resized_center_bmp legibility.
+
 v.0.1.3
 - Improved code: PEP 256 Docstrings.
 - SaveDialog resize to ensure enough space for the preview.
-- Added *.ICO wildcard to save dialog.
+- Added *.ICO wildcard to the save dialog.
 
 v.0.1.2
 - Improved code: PEP8 by flake8 and pylint optimizations.
