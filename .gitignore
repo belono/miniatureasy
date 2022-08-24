@@ -1,3 +1,6 @@
 save_dlg.py
 *.pyc
 .vscode/
+.python-version
+Pipfile
+Pipfile.lock
