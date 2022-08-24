@@ -585,14 +585,14 @@ class SaveDialog(wx.Dialog):
                                        name='height')
         self.text_size_w.SetMaxLength(3)
         self.text_size_h.SetMaxLength(3)
-        h_sizer2.Add(self.text_size_w, 0, wx.TE_CENTER)
-        h_sizer2.Add(self.text_size_h, 0, wx.TE_CENTER)
+        h_sizer2.Add(self.text_size_w, 0)
+        h_sizer2.Add(self.text_size_h, 0)
         sizer2.Add(h_sizer2, 0, wx.ALIGN_CENTER | wx.ALL, 5)
         mainsizer.Add(sizer2, 0, wx.EXPAND)
 
         # Separated buttons sizer
         but_sizer = self.CreateSeparatedButtonSizer(wx.OK | wx.CANCEL)
-        mainsizer.Add(but_sizer, 0, wx.EXPAND | wx.ALIGN_CENTER | wx.ALL, 5)
+        mainsizer.Add(but_sizer, 0, wx.ALIGN_CENTER | wx.ALL, 5)
 
         but_id_ok = wx.FindWindowById(wx.ID_OK, self)
         but_id_close = wx.FindWindowById(wx.ID_CANCEL, self)
