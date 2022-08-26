@@ -276,7 +276,7 @@ class MainFrame(wx.Frame):
     def pil_thumb_hiq(pil_img, target_w, target_h):
         """ Proportionaly scale image to target size in ANTIALIAS quality.
         with PIL/Pillow."""
-        pil_img.thumbnail((target_w, target_h, Image.ANTIALIAS))
+        pil_img.thumbnail((target_w, target_h), Image.ANTIALIAS)
         return pil_img
 
     def set_save_properties(self, save_path, target_size):
