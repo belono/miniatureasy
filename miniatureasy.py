@@ -491,8 +491,8 @@ Check target size: {}'''.format(self.save_path, self.target_size)
         panel_w, panel_h = panel_size
         thumb_w, thumb_h = thumb_size
 
-        position = wx.Point((panel_w - thumb_w) / 2,
-                            (panel_h - thumb_h) / 2)
+        position = wx.Point((panel_w - thumb_w) // 2,
+                            (panel_h - thumb_h) // 2)
         return position
 
     def update_boundingbox(self, position, size):
