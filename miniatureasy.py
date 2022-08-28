@@ -37,6 +37,11 @@ try:
 except AttributeError:
     BG_STYLE = wx.BG_STYLE_CUSTOM
 
+try:
+    LANCZOS = Image.Resampling.LANCZOS
+except AttributeError:
+    LANCZOS = Image.ANTIALIAS
+
 
 class MainFrame(wx.Frame):
     """ Window main frame.
@@ -274,9 +279,9 @@ class MainFrame(wx.Frame):
 
     @staticmethod
     def pil_thumb_hiq(pil_img, target_w, target_h):
-        """ Proportionaly scale image to target size in ANTIALIAS quality.
+        """ Proportionaly scale image to target size in high quality.
         with PIL/Pillow."""
-        pil_img.thumbnail((target_w, target_h), Image.ANTIALIAS)
+        pil_img.thumbnail((target_w, target_h), LANCZOS)
         return pil_img
 
     def set_save_properties(self, save_path, target_size):
