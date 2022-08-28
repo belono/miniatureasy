@@ -1,5 +1,12 @@
 MiniaturEasy changelog:
 
+v.0.1.5
+- Pillow 10 preparations
+- Fix wrong closing parenthesis
+- Fix py3 real division in wx.Point require int
+- Fix wxpython >= .4.1 alignment flags
+- gitignore pyenv/pipenv 
+
 v.0.1.4
 - Fixed incorrect bounding box values in some platforms:
 - Now boundingbox is a wx.Rect and values are obtained from its properties.
